@@ -1,25 +1,20 @@
-<template lang="pug">
-  section
-    .container
-      img(src="/assets/img/logo.png" :alt="message")
-      p {{ message }}
+<template>
+  <div>
+    <h2>{{ stuff }}</h2>
+  </div>
 </template>
 
 <script>
 export default {
-  data () {
-    return {
-      message: 'Example Vue component',
-    }
-  }
-}
+  name: 'Example',
+
+  data: () => ({
+    stuff: 'Vue example component'
+  }),
+
+};
 </script>
 
-<style lang="scss" scoped>
-.container {
-  text-align: center;
-}
-img {
-  max-width: 200px;
-}
+<style>
+
 </style>

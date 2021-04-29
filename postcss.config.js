@@ -1,15 +1,8 @@
 module.exports = {
-  plugins: [
-    require('autoprefixer'),
-    require('css-mqpacker'),
-    require('cssnano')({
-      preset: [
-        'default', {
-          discardComments: {
-            removeAll: true
-          }
-        }
-      ]
-    })
-  ]
-}
+    plugins: [
+        require('postcss-cssnext')({
+            browsers: ['last 2 versions', '> 5%']
+        }),
+        require('cssnano')
+    ],
+};

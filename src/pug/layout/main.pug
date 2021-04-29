@@ -1,20 +1,27 @@
 include ../utils/mixins
-block variables
+block meta
 
 doctype html
 html(lang='en')
   head
     meta(charset='utf-8')
+    meta(name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0")
+    meta(http-equiv="X-UA-Compatible" content="ie=edge")
+    link(rel="icon" type="image/png" href="assets/img/favicon/favicon.png" sizes="32x32")
     title #{title}
     meta(name="description", content=description)
     block head
 
-  body()
-    .wrapper
-      #app
-        include ../includes/modules/header
-        .content-wrapper
-          block content
-        include ../includes/modules/footer
+  body(class=pageClass)
+
+    header
+      include ../includes/modules/header
+
+    main
+      block content
+
+    footer
+      include ../includes/modules/footer
+
 
     block script
