@@ -4,8 +4,8 @@ const
     ProgressBarPlugin = require('progress-bar-webpack-plugin'),
     CopyWebpackPlugin = require('copy-webpack-plugin'),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
-    HtmlWebpackPugPlugin = require('html-webpack-pug-plugin');
-VueLoaderPlugin = require('vue-loader/lib/plugin'),
+    HtmlWebpackPugPlugin = require('html-webpack-pug-plugin'),
+    VueLoaderPlugin = require('vue-loader/lib/plugin'),
     webpack = require('webpack'),
     MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
@@ -24,7 +24,23 @@ module.exports = env => {
             // Точка выхода для js
             output: {
                 // Имя выходного js файла. [name] - подставляется имя тчоки входа
-                filename: 'js/[name].js',
+                filename: 'js/[name].min.js',
+
+                // filename: (pathData) => {
+                //
+                //     // const request = pathData.chunk.entryModule.dependencies[0].request.indexOf('js');
+                //
+                //     if (pathData.chunk.entryModule.dependencies[0].request.indexOf('js')) {
+                //         return 'js/' + pathData.chunk.entryModule.dependencies[0].loc.name + '.js';
+                //     }
+                //
+                //     return null;
+                //
+                //     // console.log('@!@!@!@', pathData.chunk.entryModule.dependencies[0].request, '!@!@!@!@')
+                //
+                //     // return pathData.chunk.name === 'main' ? '[name].js' : '[name]/[name].js';
+                // },
+
                 // Путь куда компилируются файлы
                 path: path.resolve(__dirname, buildPath),
                 publicPath: '/',
@@ -135,17 +151,13 @@ module.exports = env => {
 
                     {
                         test: /\.pug$/,
-                        oneOf: [
-                            {
-                                resourceQuery: /^\?vue/,
-                                use: ['pug-plain-loader']
-                            },
-                            {
-                                use: ['pug-loader']
-                            }
-                        ]
-                    }
+                        loader: 'pug-loader',
+                        options: {
+                            pretty: true
+                        }
+                    },
                 ],
+
             },
 
             resolve: {
@@ -184,7 +196,11 @@ module.exports = env => {
                     'window.jQuery': 'jquery',
                 }),
 
-                new HtmlWebpackPugPlugin(),
+                new HtmlWebpackPugPlugin(
+                    {
+                        adjustIndent: true
+                    }
+                ),
 
                 new VueLoaderPlugin(),
             ],
@@ -203,7 +219,8 @@ module.exports = env => {
             ...PAGES.map( page => new HtmlWebpackPlugin({
                 template: `${PAGES_DIR}/${page}`,
                 filename: `./${page.replace(/\.pug/, '.html')}`,
-                chunks: [ page.replace(/\.pug/, ''), 'main' ]
+                chunks: [ page.replace(/\.pug/, ''), 'main' ],
+                minify: false
             }))
         ]);
 

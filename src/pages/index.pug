@@ -1,5 +1,5 @@
 extends layout/main
-include utils/mixins
+include addons/card
 
 block meta
     - var title = 'Index page';
@@ -13,13 +13,13 @@ block head
 block content
 
     section.content
-        h1 This is content
+        h1 This is contentsdfsdf
+
+        div.container
+            +card('This is card title', 'This is card description')
 
         #app
             example
-
-        div.container
-            +sample('This is title', 'This is description')
 
 block script
     script().

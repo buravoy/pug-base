@@ -1,8 +1,8 @@
 {
   "name": "front-base",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "From Russia with Love",
-  "main": "src/js/index.js",
+  "main": "/js/main.js",
   "scripts": {
     "dev": "webpack-dev-server --env dev",
     "build": "webpack --mode production --env babel",
@@ -12,7 +12,7 @@
     "clean": "rimraf build"
   },
   "keywords": [],
-  "author": "Mikhail Tsalka",
+  "author": "Mikhail Tsalka feat. Buravoy",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.10.2",
@@ -61,6 +61,7 @@
     "jquery-ui": "^1.12.1",
     "jquery.cookie": "^1.4.1",
     "pug": "^3.0.2",
+    "pug-html-loader": "^1.1.5",
     "select2": "^4.1.0-rc.0",
     "slick-carousel": "^1.8.1"
   }
