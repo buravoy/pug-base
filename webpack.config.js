@@ -7,7 +7,9 @@ const
     HtmlWebpackPugPlugin = require('html-webpack-pug-plugin'),
     VueLoaderPlugin = require('vue-loader/lib/plugin'),
     webpack = require('webpack'),
-    MiniCssExtractPlugin = require('mini-css-extract-plugin');
+    MiniCssExtractPlugin = require('mini-css-extract-plugin'),
+    RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
+    TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = env => {
     /* присваиваем зависимость dev в зависимости от запущенной клманды. Проставляется в package.json scripts --env  */
@@ -21,26 +23,8 @@ module.exports = env => {
         PAGES = fs.readdirSync(PAGES_DIR).filter(fileName => fileName.endsWith('.pug')),
 
         config = {
-            // Точка выхода для js
             output: {
-                // Имя выходного js файла. [name] - подставляется имя тчоки входа
                 filename: 'js/[name].min.js',
-
-                // filename: (pathData) => {
-                //
-                //     // const request = pathData.chunk.entryModule.dependencies[0].request.indexOf('js');
-                //
-                //     if (pathData.chunk.entryModule.dependencies[0].request.indexOf('js')) {
-                //         return 'js/' + pathData.chunk.entryModule.dependencies[0].loc.name + '.js';
-                //     }
-                //
-                //     return null;
-                //
-                //     // console.log('@!@!@!@', pathData.chunk.entryModule.dependencies[0].request, '!@!@!@!@')
-                //
-                //     // return pathData.chunk.name === 'main' ? '[name].js' : '[name]/[name].js';
-                // },
-
                 // Путь куда компилируются файлы
                 path: path.resolve(__dirname, buildPath),
                 publicPath: '/',
@@ -49,6 +33,7 @@ module.exports = env => {
             devtool: devMode ? 'source-map' : false,
 
             optimization: {
+                removeEmptyChunks: true,
                 splitChunks: {
                     cacheGroups: {
                         commons: {
@@ -58,6 +43,12 @@ module.exports = env => {
                         },
                     },
                 },
+                minimize: true,
+                minimizer: [
+                    new TerserPlugin({
+                        extractComments: false,
+                    }),
+                ],
             },
             // Настройки devServer
             devServer: {
@@ -72,7 +63,7 @@ module.exports = env => {
                 rules: [
                     {
                         test: /\.js$/,
-                        use: 'babel-loader',
+                        loader: 'babel-loader',
                     },
                     // отвечает за файлы vue
                     {
@@ -92,23 +83,42 @@ module.exports = env => {
                     *
                     *  (?sourceMap делает подключает sourceMap в соответсвии со значением с devtool) */
                     {
-                        test: /\.(sc|c)ss$/,
+                        test: /\.scss$/,
                         use: [
+                            'style-loader',
                             MiniCssExtractPlugin.loader,
-                            'css-loader?sourceMap',
-                            'postcss-loader?sourceMap',
-                            'sass-loader?sourceMap',
-                        ],
+                            {
+                                loader: 'css-loader',
+                                options: { sourceMap: true }
+                            }, {
+                                loader: 'postcss-loader',
+                                options: { sourceMap: true, config: { path: `./postcss.config.js` } }
+                            }, {
+                                loader: 'sass-loader',
+                                options: { sourceMap: true }
+                            }
+                        ]
                     },
                     // отвечает за файлы styl
                     {
                         test: /\.styl$/,
-                        loader: [
-                            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-                            'css-loader',
-                            'postcss-loader',
+                        use: [
                             'stylus-loader',
-                        ],
+                            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+                            {
+                                loader: 'css-loader',
+                                options: { sourceMap: true }
+                            }, {
+                                loader: 'postcss-loader',
+                                options: { sourceMap: true, config: { path: `./postcss.config.js` } }
+                            },
+                        ]
+                        // loader: [
+                        //     devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+                        //     'css-loader',
+                        //     'postcss-loader',
+                        //     'stylus-loader',
+                        // ],
                     },
                     // отвечает за файлы изображений.
                     {
@@ -203,9 +213,10 @@ module.exports = env => {
                 ),
 
                 new VueLoaderPlugin(),
+
+                new RemoveEmptyScriptsPlugin(),
             ],
 
-            // Точки входа
             entry: {
                 main: [
                     './src/js/main.js',
@@ -213,7 +224,7 @@ module.exports = env => {
                 ],
             },
         };
-    // Все выходные точки теперь задаются в массиве ниже, по аналогии с другими
+
     if (!prodMode) {
         config.plugins.push(...[
             ...PAGES.map( page => new HtmlWebpackPlugin({
