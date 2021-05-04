@@ -8,7 +8,7 @@ const
     VueLoaderPlugin = require('vue-loader/lib/plugin'),
     webpack = require('webpack'),
     MiniCssExtractPlugin = require('mini-css-extract-plugin'),
-    RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
+    RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts'),
     TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = env => {
@@ -18,7 +18,6 @@ module.exports = env => {
         projectPublicPath = './',
         prodMode = env === 'production' ? env : false,
         buildPath = prodMode ? projectPublicPath : './build',
-
         PAGES_DIR = './src/pages/',
         PAGES = fs.readdirSync(PAGES_DIR).filter(fileName => fileName.endsWith('.pug')),
 
@@ -206,8 +205,7 @@ module.exports = env => {
                     'window.jQuery': 'jquery',
                 }),
 
-                new HtmlWebpackPugPlugin(
-                    {
+                new HtmlWebpackPugPlugin({
                         adjustIndent: true
                     }
                 ),
