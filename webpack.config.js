@@ -112,12 +112,6 @@ module.exports = env => {
                                 options: { sourceMap: true, config: { path: `./postcss.config.js` } }
                             },
                         ]
-                        // loader: [
-                        //     devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-                        //     'css-loader',
-                        //     'postcss-loader',
-                        //     'stylus-loader',
-                        // ],
                     },
                     // отвечает за файлы изображений.
                     {
@@ -135,7 +129,6 @@ module.exports = env => {
                                     return destination.replace(/[\\\/]+/g, '/');
                                 },
                                 publicPath: '..',
-
                             },
                         },
                     },
@@ -185,18 +178,13 @@ module.exports = env => {
                 new ProgressBarPlugin(),
 
                 // Компиляция css
-                new MiniCssExtractPlugin({
-                        filename: 'css/[name].min.css',
-                    },
-                ),
+                new MiniCssExtractPlugin({filename: 'css/[name].min.css'}),
                 // Копирование файлов
                 new CopyWebpackPlugin({
-                    patterns: [
-                        {
+                    patterns: [{
                             from: './src/images',
                             to: 'images',
-                        },
-                    ],
+                        },],
                 }),
 
                 new webpack.ProvidePlugin({
@@ -205,10 +193,7 @@ module.exports = env => {
                     'window.jQuery': 'jquery',
                 }),
 
-                new HtmlWebpackPugPlugin({
-                        adjustIndent: true
-                    }
-                ),
+                new HtmlWebpackPugPlugin({adjustIndent: true}),
 
                 new VueLoaderPlugin(),
 
