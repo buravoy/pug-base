@@ -4,7 +4,7 @@
   "description": "From Russia with Love",
   "main": "/js/main.js",
   "scripts": {
-    "dev": "webpack-dev-server --env dev",
+    "dev": "webpack serve --open --config webpack.dev.js",
     "build": "webpack --mode production --env babel",
     "production": "webpack --mode production --env production",
     "light": "webpack --mode production",
@@ -27,7 +27,7 @@
     "file-loader": "^6.2.0",
     "html-cli": "^1.0.0",
     "html-loader": "^2.1.2",
-    "html-webpack-plugin": "^4.5.2",
+    "html-webpack-plugin": "^5.3.1",
     "html-webpack-pug-plugin": "^3.0.0",
     "jquery": "^3.6.0",
     "node-sass": "^4.14.1",
@@ -54,7 +54,8 @@
     "webpack": "^5.36.2",
     "webpack-cli": "^4.6.0",
     "webpack-delete-no-js-entries-plugin": "^1.0.1",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^5.7.3"
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",

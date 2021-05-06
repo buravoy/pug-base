@@ -1,4 +1,5 @@
 const
+    webpack = require('webpack'),
     path = require('path'),
     fs = require('fs'),
     ProgressBarPlugin = require('progress-bar-webpack-plugin'),
@@ -6,7 +7,6 @@ const
     HtmlWebpackPlugin = require('html-webpack-plugin'),
     HtmlWebpackPugPlugin = require('html-webpack-pug-plugin'),
     VueLoaderPlugin = require('vue-loader/lib/plugin'),
-    webpack = require('webpack'),
     MiniCssExtractPlugin = require('mini-css-extract-plugin'),
     RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts'),
     TerserPlugin = require("terser-webpack-plugin");
@@ -14,9 +14,6 @@ const
 module.exports = env => {
     /* присваиваем зависимость dev в зависимости от запущенной клманды. Проставляется в package.json scripts --env  */
     const
-        devMode = env === 'dev' ? env : false,
-        projectPublicPath = './',
-        prodMode = env === 'production' ? env : false,
         buildPath = prodMode ? projectPublicPath : './build',
         PAGES_DIR = './src/pages/',
         PAGES = fs.readdirSync(PAGES_DIR).filter(fileName => fileName.endsWith('.pug')),
@@ -84,7 +81,7 @@ module.exports = env => {
                     {
                         test: /\.scss$/,
                         use: [
-                            'style-loader',
+                            // 'style-loader',
                             MiniCssExtractPlugin.loader,
                             {
                                 loader: 'css-loader',
@@ -102,8 +99,9 @@ module.exports = env => {
                     {
                         test: /\.styl$/,
                         use: [
-                            'stylus-loader',
-                            devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+                            // 'stylus-loader',
+                            // devMode ? 'style-loader' :
+                            MiniCssExtractPlugin.loader,
                             {
                                 loader: 'css-loader',
                                 options: { sourceMap: true }
@@ -159,7 +157,6 @@ module.exports = env => {
                         }
                     },
                 ],
-
             },
 
             resolve: {
@@ -229,6 +226,7 @@ module.exports = env => {
             if (scss) item[key].push(scss);
             return item;
         }))
+
         console.log('Auto generated chunks: ', config.entry)
     }
 
