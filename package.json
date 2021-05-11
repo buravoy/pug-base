@@ -1,18 +1,14 @@
 {
-  "name": "front-base",
+  "name": "layout_builder",
   "version": "3.0.0",
-  "description": "From Russia with Love",
+  "description": "Pug + Vue + SCSS template engine",
   "main": "/js/main.js",
   "scripts": {
     "dev": "webpack serve --open --config webpack.dev.js",
-    "build": "webpack --mode production --env babel",
-    "production": "webpack --mode production --env production",
-    "light": "webpack --mode production",
-    "watch": "webpack --watch",
-    "clean": "rimraf build"
+    "build": "webpack --config webpack.build.js"
   },
   "keywords": [],
-  "author": "Mikhail Tsalka feat. Buravoy",
+  "author": "Buravoy",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.14.0",
@@ -55,20 +51,25 @@
     "webpack-cli": "^4.6.0",
     "webpack-delete-no-js-entries-plugin": "^1.0.1",
     "webpack-dev-server": "^3.11.2",
-    "webpack-merge": "^5.7.3"
+    "webpack-merge": "^5.7.3",
+    "webpack-shell-plugin-next": "^2.2.2"
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
+    "argv": "0.0.2",
     "axios": "^0.21.1",
+    "gulp-html-beautify": "^1.0.1",
     "html-beautify-webpack-plugin": "^1.0.5",
     "jquery-ui": "^1.12.1",
     "jquery.cookie": "^1.4.1",
+    "js-beautify": "^1.13.13",
     "mini-css-extract-plugin": "^1.6.0",
     "pug": "^3.0.2",
     "pug-html-loader": "^1.1.5",
     "select2": "^4.1.0-rc.0",
     "slick-carousel": "^1.8.1",
     "webpack-remove-empty-js-chunks-plugin": "^0.2.3",
-    "webpack-remove-empty-scripts": "^0.7.1"
+    "webpack-remove-empty-scripts": "^0.7.1",
+    "webpack-run-after-build-plugin": "0.0.1"
   }
 }

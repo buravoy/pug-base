@@ -1,16 +1,20 @@
-<template>
-  <div>
-    <h2>{{ stuff }}</h2>
-  </div>
+<template lang="pug">
+  section
+    .container
+      img(src="/images/logo.png" :alt="message")
+      p {{ message }}
 </template>
+
 
 <script>
 export default {
   name: 'Example',
 
-  data: () => ({
-    stuff: 'Vue example component'
-  }),
+  data () {
+    return {
+      message: 'Example Vue component',
+    }
+  }
 
 };
 </script>

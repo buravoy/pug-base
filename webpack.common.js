@@ -3,243 +3,190 @@ const
     fs = require('fs'),
     webpack = require('webpack'),
     ProgressBarPlugin = require('progress-bar-webpack-plugin'),
-    CopyWebpackPlugin = require('copy-webpack-plugin'),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
     HtmlWebpackPugPlugin = require('html-webpack-pug-plugin'),
     VueLoaderPlugin = require('vue-loader/lib/plugin'),
     MiniCssExtractPlugin = require('mini-css-extract-plugin'),
-    RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts'),
-    TerserPlugin = require("terser-webpack-plugin");
+    TerserPlugin = require("terser-webpack-plugin"),
+    CopyWebpackPlugin = require('copy-webpack-plugin'),
+    pagesDir = path.join(__dirname, './src/pages'),
+    pages = fs.readdirSync(pagesDir).filter(fileName => fileName.endsWith('.pug'));
 
-module.exports = env => {
-    /* присваиваем зависимость dev в зависимости от запущенной клманды. Проставляется в package.json scripts --env  */
-    const
-        devMode = env === 'dev' ? env : false,
-        projectPublicPath = './production',
-        prodMode = env === 'production' ? env : false,
-        buildPath = prodMode ? projectPublicPath : './build',
+module.exports = {
+    entry: {
+        main: [
+            './src/js/main.js',
+            './src/styles/main.scss'
+        ],
+    },
 
-        PAGES_DIR = './src/pages/',
-        PAGES = fs.readdirSync(PAGES_DIR).filter(fileName => fileName.endsWith('.pug')),
-
-        config = {
-
-            // context: path.join(__dirname, 'src'),
-
-            output: {
-                filename: 'js/[name].min.js',
-                // Путь куда компилируются файлы
-                path: path.resolve(__dirname, './build'),
-                publicPath: '/',
+    optimization: {
+        removeEmptyChunks: true,
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
             },
-            // Отвечает за sourceMaps
-            // devtool: devMode ? 'source-map' : false,
+        },
+        minimize: true,
+        minimizer: [
+            new TerserPlugin({
+                extractComments: false,
+            }),
+        ],
+    },
 
-            optimization: {
-                removeEmptyChunks: true,
-                splitChunks: {
-                    cacheGroups: {
-                        commons: {
-                            test: /[\\/]node_modules[\\/]/,
-                            name: 'vendors',
-                            chunks: 'all',
-                        },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+            },
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader',
+                options: {
+                    loaders: {
+                        js: 'babel-loader',
                     },
                 },
-                minimize: true,
-                minimizer: [
-                    new TerserPlugin({
-                        extractComments: false,
-                    }),
-                ],
             },
-            // Настройки devServer
-            devServer: {
-                // При запуске открывает сразу в браузере
-                open: true,
-                // Показывает ошибки в окне браузера
-                overlay: true,
+            {
+                test: /\.scss$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {sourceMap: true}
+                    }, {
+                        loader: 'postcss-loader',
+                        options: {sourceMap: true, config: {path: `./postcss.config.js`}}
+                    }, {
+                        loader: 'sass-loader',
+                        options: {sourceMap: true}
+                    }
+                ]
             },
-
-            module: {
-                // правила обработки файлов
-                rules: [
+            {
+                test: /\.styl$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
                     {
-                        test: /\.js$/,
-                        loader: 'babel-loader',
+                        loader: 'css-loader',
+                        options: {sourceMap: true}
+                    }, {
+                        loader: 'postcss-loader',
+                        options: {sourceMap: true, config: {path: `./postcss.config.js`}}
                     },
-                    // отвечает за файлы vue
-                    {
-                        test: /\.vue$/,
-                        loader: 'vue-loader',
-                        options: {
-                            loaders: {
-                                js: 'babel-loader',
-                            },
+                ]
+            },
+            {
+                test: /\.(jpe?g|png|gif|svg)$/,
+                use: {
+                    loader: 'url-loader',
+                    options: {
+                        limit: 8000,
+                        name(url) {
+                            return path
+                                .relative(path.resolve(__dirname, 'src'), url)
+                                .replace(/[\\\/]+/g, '/');
                         },
+                        publicPath: '..',
                     },
-                    /* отвечает за файлы css,scss
-                    *  лоадеры подключаются с конца
-                    *  sass-loader    - обработка scss
-                    *  postcss-loader - делает обработку css в соответсвии с параметрами задаными в файле postcss.config.js
-                    *  sass-loader    - компилирует css
-                    *
-                    *  (?sourceMap делает подключает sourceMap в соответсвии со значением с devtool) */
+                },
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                use: [
                     {
-                        test: /\.scss$/,
-                        use: [
-                            // 'style-loader',
-                            MiniCssExtractPlugin.loader,
-                            {
-                                loader: 'css-loader',
-                                options: { sourceMap: true }
-                            }, {
-                                loader: 'postcss-loader',
-                                options: { sourceMap: true, config: { path: `./postcss.config.js` } }
-                            }, {
-                                loader: 'sass-loader',
-                                options: { sourceMap: true }
-                            }
-                        ]
-                    },
-                    // отвечает за файлы styl
-                    {
-                        test: /\.styl$/,
-                        use: [
-                            // 'stylus-loader',
-                            // devMode ? 'style-loader' :
-                            MiniCssExtractPlugin.loader,
-                            {
-                                loader: 'css-loader',
-                                options: { sourceMap: true }
-                            }, {
-                                loader: 'postcss-loader',
-                                options: { sourceMap: true, config: { path: `./postcss.config.js` } }
-                            },
-                        ]
-                    },
-                    // отвечает за файлы изображений.
-                    {
-                        test: /\.(jpe?g|png|gif|svg)$/,
-                        use: {
-                            // подгружает файлы картинок которые прописаны в стилях
-                            loader: 'url-loader',
-                            options: {
-                                // если размер файла меньше указаного лимита картинка из стилей подключается в base64
-                                limit: 8000,
-                                // меняет слешы на линуксовские
-                                name(url) {
-                                    const destination = path.relative(path.resolve(__dirname, 'src'), url);
-
-                                    return destination.replace(/[\\\/]+/g, '/');
-                                },
-                                publicPath: '..',
-                            },
-                        },
-                    },
-                    // отвечает за файлы шрифтов
-                    {
-                        test: /\.(woff|woff2|eot|ttf|otf)$/,
-                        use: [
-                            {
-                                loader: 'file-loader',
-                                options: {
-                                    // меняет слешы на линуксовские
-                                    name(url) {
-                                        const destination = path.relative(path.resolve(__dirname, 'src'), url);
-
-                                        return destination.replace(/[\\\/]+/g, '/');
-                                    },
-                                    publicPath: '..',
-                                },
-                            },
-                        ],
-                    },
-
-                    {
-                        test: /\.pug$/,
-                        loader: 'pug-loader',
+                        loader: 'file-loader',
                         options: {
-                            pretty: true
-                        }
+                            name(url) {
+                                  return path
+                                      .relative(path.resolve(__dirname, 'src'), url)
+                                      .replace(/[\\\/]+/g, '/');
+                            },
+                            publicPath: '..',
+                        },
                     },
                 ],
             },
 
-            resolve: {
-                alias: {
-                    'vue$': 'vue/dist/vue.esm.js',
-                    Components: path.resolve(__dirname, 'src/js/Components/'),
-                    '$': 'jquery',
-                    'jQuery': 'jquery',
-                    'window.jQuery': 'jquery',
-                },
-                extensions: ['.vue', '.js', '.json'],
+            {
+                test: /\.pug$/,
+                oneOf: [
+                    {
+                        resourceQuery: /^\?vue/,
+                        use: 'pug-plain-loader'
+                    },
+                    { loader: 'pug-loader' }
+                ]
+
+
             },
+        ],
+    },
 
-            plugins: [
-                // Показывет в консоли прогресс компиляции
-                new ProgressBarPlugin(),
+    resolve: {
+        alias: {
+            'vue$': 'vue/dist/vue.esm.js',
+            Components: path.resolve(__dirname, './src/components/'),
+            '$': 'jquery',
+            'jQuery': 'jquery',
+            'window.jQuery': 'jquery',
+        },
+        extensions: ['.vue', '.js', '.json'],
+    },
 
-                // Компиляция css
-                new MiniCssExtractPlugin({filename: 'css/[name].min.css'}),
-                // Копирование файлов
-                new CopyWebpackPlugin({
-                    patterns: [{
-                        from: './src/images',
-                        to: 'images',
-                    },],
-                }),
+    plugins: [
+        new ProgressBarPlugin(),
 
-                new webpack.ProvidePlugin({
-                    '$': 'jquery',
-                    'jQuery': 'jquery',
-                    'window.jQuery': 'jquery',
-                }),
-
-                new HtmlWebpackPugPlugin({adjustIndent: true}),
-
-                new VueLoaderPlugin(),
-
-                new RemoveEmptyScriptsPlugin(),
+        new MiniCssExtractPlugin({filename: 'css/[name].min.css'}),
+        new webpack.ProvidePlugin({
+            '$': 'jquery',
+            'jQuery': 'jquery',
+            'window.jQuery': 'jquery',
+        }),
+        new webpack.HotModuleReplacementPlugin({}),
+        new HtmlWebpackPugPlugin(),
+        new VueLoaderPlugin(),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.resolve(__dirname, './src/images'),
+                    to: 'images',
+                }, {
+                    from: path.resolve(__dirname, './src/fonts'),
+                    to: 'fonts',
+                },
             ],
+        }),
+    ],
+}
 
-            entry: {
-                main: [
-                    '/src/js/main.js',
-                    '/src/styles/main.scss'
-                ],
-            },
-        };
-
-
-    config.plugins.push(...[
-        ...PAGES.map( page => new HtmlWebpackPlugin({
-            template: `${PAGES_DIR}/${page}`,
-            filename: `./${page.replace(/\.pug/, '.html')}`,
-            chunks: [ page.replace(/\.pug/, ''), 'main' ],
-            minify: false
-        }))
-    ]);
-
-    config.entry = Object.assign(config.entry, ...PAGES.map( page => {
-        const
-            key = page.replace(/\.pug/, ''),
-            item = {},
-            js = fs.existsSync(`./src/js/pages/${key}.js`) ? `./src/js/pages/${key}.js` : null,
-            scss = fs.existsSync(`./src/styles/pages/${key}.scss`) ? `./src/styles/pages/${key}.scss` : null;
-        item[key] = [];
-        if (js) item[key].push(js);
-        if (scss) item[key].push(scss);
-        return item;
+module.exports.plugins.push(...[
+    ...pages.map( page => new HtmlWebpackPlugin({
+        template: `${pagesDir}/${page}`,
+        filename: `./${page.replace(/\.pug/, '.html')}`,
+        chunks: [ page.replace(/\.pug/, ''), 'main' ],
+        inject: 'body',
+        minify: false
     }))
+]);
 
-    console.log('Auto generated chunks: ', config.entry)
+module.exports.entry = Object.assign(module.exports.entry, ...pages.map( page => {
+    const
+        key = page.replace(/\.pug/, ''),
+        item = {},
+        js = fs.existsSync(`./src/js/pages/${key}.js`) ? `./src/js/pages/${key}.js` : null,
+        scss = fs.existsSync(`./src/styles/pages/${key}.scss`) ? `./src/styles/pages/${key}.scss` : null;
+    item[key] = [];
+    if (js) item[key].push(js);
+    if (scss) item[key].push(scss);
+    return item;
+}))
 
-    return config;
-};
-
-
-
-
-
+console.log('Auto generated chunks: ', module.exports.entry)
