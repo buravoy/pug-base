@@ -124,8 +124,6 @@ module.exports = {
                     },
                     { loader: 'pug-loader' }
                 ]
-
-
             },
         ],
     },
@@ -186,7 +184,8 @@ module.exports.entry = Object.assign(module.exports.entry, ...pages.map( page =>
     item[key] = [];
     if (js) item[key].push(js);
     if (scss) item[key].push(scss);
-    return item;
+    // console.log(item)
+    return item[key].length ? item : false;
 }))
 
 console.log('Auto generated chunks: ', module.exports.entry)
